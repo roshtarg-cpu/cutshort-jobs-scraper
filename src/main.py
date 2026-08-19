@@ -14,13 +14,12 @@ async def main():
         
         Actor.log.info(f'Starting scrape with maxResults={max_results}')
         
-        # Get proxy URL
+        # Get proxy URL - FIX: await the create_proxy_configuration
         proxy_url = None
         if proxy_config:
             try:
-                proxy_url = await Actor.create_proxy_configuration(
-                    actor_proxy_input=proxy_config
-                ).new_url()
+                proxy_conf = await Actor.create_proxy_configuration(actor_proxy_input=proxy_config)
+                proxy_url = await proxy_conf.new_url()
                 Actor.log.info(f'Using proxy: {proxy_url.split("@")[1] if "@" in proxy_url else "configured"}')
             except Exception as e:
                 Actor.log.warning(f'Proxy setup failed: {e}')
@@ -45,11 +44,19 @@ async def main():
                 Actor.log.error(f'Failed to fetch {url} after 3 attempts')
                 continue
             
+            # Save HTML for debugging
+            Actor.log.info(f'HTML size: {len(html)} bytes')
+            
             # Extract __NEXT_DATA__
             next_data = _extract_next_data(html)
             if not next_data:
                 Actor.log.error('Could not extract __NEXT_DATA__')
+                # Save HTML sample for debugging
+                Actor.log.info(f'HTML sample: {html[:1000]}')
                 continue
+            
+            # Log structure for debugging
+            Actor.log.info(f'__NEXT_DATA__ keys: {list(next_data.keys())}')
             
             # Parse jobs
             jobs = parse_jobs(next_data)
