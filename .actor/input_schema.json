@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "title": "Cutshort Jobs Scraper Input",
+  "type": "object",
+  "properties": {
+    "startUrls": {
+      "title": "Start URLs",
+      "type": "array",
+      "description": "URLs to scrape (e.g., https://cutshort.io/jobs)",
+      "editor": "requestListSources",
+      "default": [{"url": "https://cutshort.io/jobs"}]
+    },
+    "maxResults": {
+      "title": "Max Results",
+      "type": "integer",
+      "description": "Maximum number of job listings to scrape",
+      "default": 100,
+      "minimum": 1
+    },
+    "proxyConfiguration": {
+      "title": "Proxy Configuration",
+      "type": "object",
+      "description": "Proxy settings (RESIDENTIAL recommended)",
+      "editor": "proxy",
+      "default": {"useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"]}
+    }
+  },
+  "required": ["startUrls"]
+}

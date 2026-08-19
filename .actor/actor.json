@@ -1,0 +1,68 @@
+{
+  "actorSpecification": 1,
+  "name": "cutshort-jobs-scraper",
+  "title": "Cutshort Jobs Scraper — India Tech Jobs & Salaries",
+  "description": "Scrape tech job listings from Cutshort.io with salaries, skills, and company data. Built for AI agents via Apify MCP.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "dockerfile": "./Dockerfile",
+  "output": {
+    "actorOutputSchemaVersion": 1,
+    "properties": {
+      "id": {
+        "type": "string",
+        "title": "Job ID",
+        "description": "Unique job identifier",
+        "template": "{{{id}}}"
+      },
+      "title": {
+        "type": "string",
+        "title": "Job Title",
+        "description": "Job position title",
+        "template": "{{{title}}}"
+      },
+      "company": {
+        "type": "string",
+        "title": "Company Name",
+        "description": "Hiring company",
+        "template": "{{{company}}}"
+      },
+      "location": {
+        "type": "string",
+        "title": "Location",
+        "description": "Job location",
+        "template": "{{{location}}}"
+      },
+      "salary": {
+        "type": "string",
+        "title": "Salary",
+        "description": "Salary range",
+        "template": "{{{salary}}}"
+      },
+      "experience": {
+        "type": "string",
+        "title": "Experience",
+        "description": "Required experience",
+        "template": "{{{experience}}}"
+      },
+      "skills": {
+        "type": "string",
+        "title": "Skills",
+        "description": "Required skills",
+        "template": "{{{skills}}}"
+      },
+      "url": {
+        "type": "string",
+        "title": "Job URL",
+        "description": "Direct link to job posting",
+        "template": "{{{url}}}"
+      },
+      "scrapedAt": {
+        "type": "string",
+        "title": "Scraped At",
+        "description": "Timestamp",
+        "template": "{{{scrapedAt}}}"
+      }
+    }
+  }
+}
