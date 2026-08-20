@@ -3,18 +3,25 @@
   "title": "Cutshort Jobs Scraper Input",
   "type": "object",
   "properties": {
-    "startUrls": {
-      "title": "Start URLs",
-      "type": "array",
-      "description": "URLs to scrape (e.g., https://cutshort.io/jobs)",
-      "editor": "requestListSources",
-      "default": [{"url": "https://cutshort.io/jobs"}]
+    "skillKeyword": {
+      "title": "Skill Keyword",
+      "type": "string",
+      "description": "Job skill/role to search for (e.g., 'python', 'react', 'data-science', 'product-manager'). Use hyphenated format for multi-word skills.",
+      "editor": "textfield",
+      "prefill": "python"
+    },
+    "location": {
+      "title": "Location",
+      "type": "string",
+      "description": "City name (e.g., 'bangalore', 'delhi', 'mumbai', 'pune', 'hyderabad'). Leave empty for all India.",
+      "editor": "textfield",
+      "prefill": "bangalore"
     },
     "maxResults": {
       "title": "Max Results",
       "type": "integer",
       "description": "Maximum number of job listings to scrape",
-      "default": 100,
+      "prefill": 50,
       "minimum": 1
     },
     "proxyConfiguration": {
@@ -25,5 +32,5 @@
       "default": {"useApifyProxy": true, "apifyProxyGroups": ["RESIDENTIAL"]}
     }
   },
-  "required": ["startUrls"]
+  "required": ["skillKeyword", "maxResults"]
 }

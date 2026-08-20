@@ -8,11 +8,20 @@ async def main():
     async with Actor:
         # Get input
         actor_input = await Actor.get_input() or {}
-        max_results = actor_input.get('maxResults', 100)
-        start_urls = actor_input.get('startUrls', [{'url': 'https://cutshort.io/jobs'}])
+        max_results = actor_input.get('maxResults', 50)
+        skill_keyword = actor_input.get('skillKeyword', 'python')
+        location = actor_input.get('location', 'bangalore')
         proxy_config = actor_input.get('proxyConfiguration')
         
-        Actor.log.info(f'Starting scrape with maxResults={max_results}')
+        # Construct URL based on inputs
+        if location:
+            # https://cutshort.io/jobs/python-jobs-in-bangalore
+            url = f'https://cutshort.io/jobs/{skill_keyword}-jobs-in-{location}'
+        else:
+            # https://cutshort.io/jobs/python-jobs (all India)
+            url = f'https://cutshort.io/jobs/{skill_keyword}-jobs'
+        
+        Actor.log.info(f'Starting scrape from: {url} (maxResults={max_results})')
         
         # Get proxy URL - FIX: await the create_proxy_configuration
         proxy_url = None
@@ -26,58 +35,52 @@ async def main():
         
         total_scraped = 0
         
-        # Process each start URL
-        for url_obj in start_urls:
-            url = url_obj.get('url', 'https://cutshort.io/jobs')
-            Actor.log.info(f'Fetching: {url}')
-            
-            # Retry logic
-            html = None
-            for attempt in range(3):
-                html = await _fetch(url, proxy_url)
-                if html:
-                    break
-                Actor.log.warning(f'Attempt {attempt+1}/3 failed, retrying...')
-                await asyncio.sleep(2 * (attempt + 1))
-            
-            if not html:
-                Actor.log.error(f'Failed to fetch {url} after 3 attempts')
-                continue
-            
-            # Save HTML for debugging
-            Actor.log.info(f'HTML size: {len(html)} bytes')
-            
-            # Extract __NEXT_DATA__
-            next_data = _extract_next_data(html)
-            if not next_data:
-                Actor.log.error('Could not extract __NEXT_DATA__')
-                # Save HTML sample for debugging
-                Actor.log.info(f'HTML sample: {html[:1000]}')
-                continue
-            
-            # Log structure for debugging
-            Actor.log.info(f'__NEXT_DATA__ keys: {list(next_data.keys())}')
-            
-            # Parse jobs
-            jobs = parse_jobs(next_data)
-            
-            # Add timestamp and push to dataset
-            scraped_at = datetime.now(timezone.utc).isoformat()
-            
-            for job in jobs:
-                if total_scraped >= max_results:
-                    break
-                    
-                job['scrapedAt'] = scraped_at
-                
-                # Push to dataset immediately
-                await Actor.push_data(job)
-                total_scraped += 1
-                
-                if total_scraped % 10 == 0:
-                    Actor.log.info(f'Scraped {total_scraped} jobs so far...')
-            
+        Actor.log.info(f'Fetching: {url}')
+        
+        # Retry logic
+        html = None
+        for attempt in range(3):
+            html = await _fetch(url, proxy_url)
+            if html:
+                break
+            Actor.log.warning(f'Attempt {attempt+1}/3 failed, retrying...')
+            await asyncio.sleep(2 * (attempt + 1))
+        
+        if not html:
+            Actor.log.error(f'Failed to fetch {url} after 3 attempts')
+            return  # Exit early if fetch failed
+        
+        # Save HTML for debugging
+        Actor.log.info(f'HTML size: {len(html)} bytes')
+        
+        # Extract __NEXT_DATA__
+        next_data = _extract_next_data(html)
+        if not next_data:
+            Actor.log.error('Could not extract __NEXT_DATA__')
+            # Save HTML sample for debugging
+            Actor.log.info(f'HTML sample: {html[:1000]}')
+            return  # Exit early if parsing failed
+        
+        # Log structure for debugging
+        Actor.log.info(f'__NEXT_DATA__ keys: {list(next_data.keys())}')
+        
+        # Parse jobs
+        jobs = parse_jobs(next_data)
+        
+        # Add timestamp and push to dataset
+        scraped_at = datetime.now(timezone.utc).isoformat()
+        
+        for job in jobs:
             if total_scraped >= max_results:
                 break
+                
+            job['scrapedAt'] = scraped_at
+            
+            # Push to dataset immediately
+            await Actor.push_data(job)
+            total_scraped += 1
+            
+            if total_scraped % 10 == 0:
+                Actor.log.info(f'Scraped {total_scraped} jobs so far...')
         
         Actor.log.info(f'✅ Scraping complete! Total jobs: {total_scraped}')
