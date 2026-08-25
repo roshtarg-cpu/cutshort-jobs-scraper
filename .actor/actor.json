@@ -1,7 +1,7 @@
 {
   "actorSpecification": 1,
   "name": "cutshort-jobs-scraper",
-  "title": "Cutshort Jobs Scraper — India Tech Jobs & Salaries",
+  "title": "Cutshort Jobs Scraper \u2014 India Tech Jobs & Salaries",
   "description": "Scrape tech job listings from Cutshort.io with salaries, skills, and company data. Built for AI agents via Apify MCP.",
   "version": "0.1",
   "buildTag": "latest",
@@ -62,6 +62,35 @@
         "title": "Scraped At",
         "description": "Timestamp",
         "template": "{{{scrapedAt}}}"
+      }
+    }
+  },
+  "storages": {
+    "dataset": {
+      "actorSpecification": 1,
+      "fields": {},
+      "views": {
+        "overview": {
+          "title": "Results",
+          "transformation": {
+            "fields": [
+              "id",
+              "title",
+              "company",
+              "location",
+              "experience",
+              "salary",
+              "skills",
+              "tags",
+              "description",
+              "postedDate",
+              "jobType",
+              "url",
+              "companyId",
+              "scrapedAt"
+            ]
+          }
+        }
       }
     }
   }
