@@ -21,6 +21,10 @@ def parse_jobs(next_data):
     """Parse job listings from __NEXT_DATA__."""
     jobs = []
     
+    if not next_data or not isinstance(next_data, dict):
+        Actor.log.error('next_data is None or not a dict')
+        return jobs
+    
     try:
         # Navigate through Next.js data structure
         queries = next_data.get('props', {}).get('pageProps', {}).get('dehydratedState', {}).get('queries', [])
